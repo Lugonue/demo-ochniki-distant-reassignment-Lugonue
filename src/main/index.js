@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import getClient from '../utils/pg'
 
 function createWindow() {
   // Create the browser window.
@@ -51,6 +52,73 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+  ipcMain.handle('getFamilyMembers', async () => {
+    try {
+      const client = getClient()
+      await client.connect()
+      const data =
+        await client.query(`select family_member_name, birth_date, organisation_name, sallary, job_name, SUM(price * amount) AS total_cost_based_on_price, FM.id as id
+FROM public.family_members FM
+LEFT JOIN public.expence_products EP ON FM.id = EP.family_member_id
+LEFT JOIN public.products P ON EP.product_id = P.id
+GROUP BY  family_member_name, birth_date, organisation_name, sallary, FM.id, job_name`)
+      await client.end()
+      return data.rows
+    } catch (error) {
+      console.log(error)
+    }
+  })
+  ipcMain.handle('postFamilyMember', async (_, familyMember) => {
+    try {
+      const client = getClient()
+      await client.connect()
+      const data = await client.query(`INSERT INTO public.family_members(
+      family_member_name, birth_date, job_name, organisation_name, sallary)
+      VALUES ($1, $2, $3, $4, $5);`, [familyMember.family_memnber_name, familyMember.birth_date, familyMember.job_name, familyMember.organisation_name, familyMember.sallary])
+      await client.end()
+      return !!data
+    } catch (error) {
+      console.log(error)
+    }
+  })
+  ipcMain.handle('deleteFamilyMember', async (_, familyMemberId) => {
+    try {
+      const client = getClient()
+      await client.connect()
+      const data = await client.query(`DELETE FROM public.family_members WHERE id = ${familyMemberId};`)
+      await client.end()
+      return !!data
+    } catch (error) {
+      console.log(error)
+    }
+  })
+  ipcMain.handle('updateFamilyMember', async (_, familyMember) => {
+    try {
+      const client = getClient()
+      await client.connect()
+      const { id, total_cost_based_on_price, ...rest } = familyMember;
+      const getValue = (key, value) => `${key === 'sallary' ? value : `'${value}'`}`
+      console.log(`UPDATE public.family_members SET ${Object.entries(rest).map(([key, value]) => value ? `${key} = ${getValue(key, value)}` : '').join(', ')} WHERE id = ${id};`)
+      const data = await client.query(`UPDATE public.family_members SET ${Object.entries(rest).map(([key, value]) => value ? `${key} = ${getValue(key, value)}` : '').join(', ')} WHERE id = ${id};`)
+      await client.end()
+      return !!data
+    } catch (error) {
+      console.log(error)
+    }
+  })
+
+  // ipcMain.handle('deleteFamilyMember', async (_, familyMemberId) => {
+  //   try {
+  //     const client = getClient()
+  //     await client.connect()
+  //     const data = await client.query(`DELETE FROM public.family_members WHERE id = ${familyMemberId};`)
+  //     await client.end()
+  //     return !!data
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // })
+
 
   createWindow()
 

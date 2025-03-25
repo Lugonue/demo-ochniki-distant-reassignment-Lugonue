@@ -1,33 +1,47 @@
-import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
+import { useEffect, useState } from "react"
+import Card from "./components/Card"
+import Button from "./components/Button"
+import { Link, useNavigate } from "react-router-dom"
 
 function App() {
-  const ipcHandle = () => window.electron.ipcRenderer.send('ping')
+  const navigate = useNavigate()
+  const [familyMembers, setFamilyMembers] = useState([])
+  const getFamilyMembers = async () => {
+    const data = await window.api.getFamilyMembers()
+    setFamilyMembers(data)
+    console.log(data)
+  }
+  const onDelete = async (id) => {
+    const data = await window.api.deleteFamilyMember(id)
+    if (data) {
+      await getFamilyMembers()
+      alert('Успешно удален')
+    }
+  }
+  const onUpdate = async (familyMember) => {
+    navigate('/update?familyMember=' + JSON.stringify(familyMember))
+  }
+  useEffect(() => {
+    getFamilyMembers()
+  }, [])
 
   return (
-    <>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
-      <div className="text">
-        Build an Electron app with <span className="react">React</span>
+    <div className="flex gap-2">
+      <div className="grid items-start gap-4">
+        {familyMembers && familyMembers.map((familyMember) => {
+          return <Card key={familyMember.id} familyMember={familyMember} onUpdate={onUpdate} onDelete={onDelete} />
+
+        })}
       </div>
-      <p className="tip">
-        Please try pressing <code>F12</code> to open the devTool
-      </p>
-      <div className="actions">
-        <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
-        </div>
-        <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
-            Send IPC
-          </a>
+      <div className="flex items-start relative">
+        <div className="sticky top-10">
+          <Link to="/add">
+            <Button label="Добавить " />
+          </Link>
+
         </div>
       </div>
-      <Versions></Versions>
-    </>
+    </div>
   )
 }
 
