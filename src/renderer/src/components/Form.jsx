@@ -17,7 +17,6 @@ const Form = ({ isEdit }) => {
     useEffect(() => {
         const getfamilyMember = async () => {
             const member = JSON.parse(searchParams.get('familyMember'))
-            console.log(member)
             member.birth_date = new Date(member.birth_date).toISOString().split('T')[0]
             setForm(member)
         }
@@ -28,11 +27,13 @@ const Form = ({ isEdit }) => {
     const submit = async (e) => {
         e.preventDefault()
         try {
-            isEdit ? await window.api.updateFamilyMember(form) : await window.api.postFamilyMember(form)
+            const service = isEdit ? await window.api.updateFamilyMember : await window.api.postFamilyMember
+            await service(form)
             alert('Успешно')
             navigate('/')
+            e.target.reset()
         } catch (error) {
-            console.log(error)
+            console.error(error)
         }
     }
     const handleInputChange = (field, value) => {

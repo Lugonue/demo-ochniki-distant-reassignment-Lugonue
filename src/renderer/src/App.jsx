@@ -9,7 +9,6 @@ function App() {
   const getFamilyMembers = async () => {
     const data = await window.api.getFamilyMembers()
     setFamilyMembers(data)
-    console.log(data)
   }
   const onDelete = async (id) => {
     const data = await window.api.deleteFamilyMember(id)
@@ -31,7 +30,7 @@ function App() {
         {familyMembers && familyMembers.map((familyMember) => {
           return <Card key={familyMember.id} familyMember={familyMember} onUpdate={onUpdate} onDelete={onDelete} />
 
-        })}
+        }) || <span>Нет данных</span>}
       </div>
       <div className="flex items-start relative">
         <div className="sticky top-10">

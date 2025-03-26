@@ -3,7 +3,7 @@ import './styles.css'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { HashRouter, Route, Routes } from 'react-router-dom'
 import Form from './components/Form'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -11,7 +11,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   //   <App />
   // </React.StrictMode>
   <div className="container max-w-[500px] mx-auto flex gap-5 p-20 font-family-Calibri">
-    <BrowserRouter>
+    <HashRouter>
       <React.StrictMode>
         <Routes>
           <Route path="/" element={<App />} />
@@ -19,6 +19,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/update" element={<Form isEdit={true} />} />
         </Routes>
       </React.StrictMode>
-    </BrowserRouter>
+    </HashRouter>
   </div>
 )
