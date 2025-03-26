@@ -1,4 +1,4 @@
-# family-budjet
+# family-budget
 
 An Electron application with React
 
