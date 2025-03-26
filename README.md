@@ -1,4 +1,4 @@
-# packege.json
+# family-budjet
 
 An Electron application with React
 
