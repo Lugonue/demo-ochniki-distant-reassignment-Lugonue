@@ -66,19 +66,25 @@ GROUP BY  family_member_name, birth_date, organisation_name, sallary, FM.id, job
       return data.rows
     } catch (error) {
       console.log(error)
+      throw error
     }
   })
   ipcMain.handle('postFamilyMember', async (_, familyMember) => {
+    console.log(familyMember)
     try {
       const client = getClient()
       await client.connect()
+      // const data = await client.query(`INSERT INTO public.family_members(
+      // family_member_name, birth_date, job_name, organisation_name, sallary)
+      // VALUES ($1, $2, $3, $4, $5);`, [familyMember.family_memnber_name, familyMember.birth_date, familyMember.job_name, familyMember.organisation_name, familyMember.sallary])
       const data = await client.query(`INSERT INTO public.family_members(
-      family_member_name, birth_date, job_name, organisation_name, sallary)
-      VALUES ($1, $2, $3, $4, $5);`, [familyMember.family_memnber_name, familyMember.birth_date, familyMember.job_name, familyMember.organisation_name, familyMember.sallary])
+       family_member_name, birth_date, job_name, organisation_name, sallary)
+      VALUES ('${familyMember.family_member_name}', '${familyMember.birth_date}', '${familyMember.job_name}', '${familyMember.organisation_name}', ${familyMember.sallary});`)
       await client.end()
       return !!data
     } catch (error) {
       console.log(error)
+      throw error
     }
   })
   ipcMain.handle('deleteFamilyMember', async (_, familyMemberId) => {
@@ -90,6 +96,7 @@ GROUP BY  family_member_name, birth_date, organisation_name, sallary, FM.id, job
       return !!data
     } catch (error) {
       console.log(error)
+      throw error
     }
   })
   ipcMain.handle('updateFamilyMember', async (_, familyMember) => {
@@ -104,6 +111,7 @@ GROUP BY  family_member_name, birth_date, organisation_name, sallary, FM.id, job
       return !!data
     } catch (error) {
       console.log(error)
+      throw error
     }
   })
 
